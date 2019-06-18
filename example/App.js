@@ -47,6 +47,7 @@ export default class App extends Component {
         // play: will hold the current play when one starts
       });
 
+
       this.elapsedTimer = setInterval(() => {
         if ((this.state.playbackState === 'PLAYING') && (this.state.play)) {
           this.setState({
@@ -96,6 +97,26 @@ export default class App extends Component {
     audioPlayerService.player.skip();
   }
 
+  renderButtons() {
+
+    return [
+      <Button 
+        key="play"
+        onPress={() => {
+          audioPlayerService.player.play();
+        }} title={'click to play '} />,
+
+      ...this.state.stations.map(station =>
+        <Button
+          key = {'key' + station.id} 
+          onPress={() => {
+            audioPlayerService.player.activeStation = station ;
+          }} title={'click to Set ' + station.name} />
+      )
+    ];
+  }
+
+
   render() {
     // player still intializing
     if (this.state.available === null) {
@@ -114,16 +135,15 @@ export default class App extends Component {
         </View>
       );
     }
-
     // music is available!
+
     switch (this.state.playbackState) {
     case 'READY_TO_PLAY':
       return (
         <View style={styles.container}>
-          <Button onPress={() => {
-            audioPlayerService.player.play();
-          }} title={'click to play ' + this.state.station.name} />
+          { this.renderButtons() }
         </View>
+
       );
 
     case 'WAITING_FOR_ITEM':
@@ -172,16 +192,26 @@ export default class App extends Component {
             audioPlayerService.player.play();
           }} title="play" />
           {
-            !this.state.play.canSkip ? (<Text style={styles.text}>(you're temporarily out of skips)</Text>) :
+            !this.state.play.canSkip ? (<Text style={styles.text}>(youre temporarily out of skips)</Text>) :
               this.state.requestingSkip ? (<Text style={styles.text}>(trying to skip)</Text>) :
                 (<Button onPress={() => { this.skip(); }} title="skip" />)
           }
         </View>
       );
+
+    //case 'UNINITIALIZED':
+    // not reached, because player.state.available is not null at this point:
+
+    //case 'OFFLINE':
+    // not yet exposed to react native clients
+
     }
 
   }
 }
+
+
+
 
 const styles = StyleSheet.create({
   container: {
